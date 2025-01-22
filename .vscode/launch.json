@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "java",
+            "name": "Launch Game",
+            "request": "launch",
+            "mainClass": "main.Game",
+            "cwd": "C:/Users/Wesma/OneDrive/Desktop/revature/2dGame/game",
+            "vmArgs": "-cp bin;res",
+            "console": "integratedTerminal"
+        }
+    ]
+}
