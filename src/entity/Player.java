@@ -4,15 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+
 import main.GamePanel;
 import main.KeyHandler;
 
 public class Player extends Entity {
 
-    GamePanel gp;
     KeyHandler keyH;
     public final int screenX;
     public final int screenY;
@@ -20,7 +17,8 @@ public class Player extends Entity {
     int standCounter = 0;
 
     public Player(GamePanel gp, KeyHandler keyH) {
-        this.gp = gp;
+        super(gp);
+
         this.keyH = keyH;
 
         screenX = gp.screenWidth/2 - (gp.tileSize/2);
@@ -47,20 +45,19 @@ public class Player extends Entity {
     }
 
     public void getPlayerImage() {
-        String basePath = "C:/Users/Wesma/OneDrive/Desktop/revature/2dGame/game/res/player/";
-        try {
-            up1 = ImageIO.read(new File(basePath + "boy_up_1.png"));
-            up2 = ImageIO.read(new File(basePath + "boy_up_2.png"));
-            down1 = ImageIO.read(new File(basePath + "boy_down_1.png"));
-            down2 = ImageIO.read(new File(basePath + "boy_down_2.png"));
-            left1 = ImageIO.read(new File(basePath + "boy_left_1.png"));
-            left2 = ImageIO.read(new File(basePath + "boy_left_2.png"));
-            right1 = ImageIO.read(new File(basePath + "boy_right_1.png"));
-            right2 = ImageIO.read(new File(basePath + "boy_right_2.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
+
+        up1 = setup("/player/boy_up_1");
+        up2 = setup("/player/boy_up_2");
+        down1 = setup("/player/boy_down_1");
+        down2 = setup("/player/boy_down_2");
+        left1 = setup("/player/boy_left_1");
+        left2 = setup("/player/boy_left_2");
+        right1 = setup("/player/boy_right_1");
+        right2 = setup("/player/boy_right_2");
+        
     }
+    
 
     public void update() {
         if (keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true || keyH.rightPressed == true) {
@@ -85,6 +82,10 @@ public class Player extends Entity {
             //Check Object Collision
             int objIndex = gp.cChecker.checkObject(this, true);
             pickUpObject(objIndex);
+
+            //Check NPC Collision
+            int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+            interactNPC(npcIndex);
 
             if (collisionOn == false) {
                 switch (direction) {
@@ -120,6 +121,24 @@ public class Player extends Entity {
     }
     public void pickUpObject(int i){
 
+        if (gp.treasureHunting){
+            pickUpObjectTreasureHunting(i);
+        } 
+        else if (i != 999) {           
+
+
+        }
+    }
+    public void interactNPC(int i){
+        if (i != 999){
+            
+            gp.gameState = gp.dialogState;
+            gp.npc[i].speak();
+            gp.currentNPC = gp.npc[i];
+        }
+    }
+    public void pickUpObjectTreasureHunting(int i){
+
         if (i != 999) {
 
             String objectName = gp.obj[i].name;
@@ -136,7 +155,9 @@ public class Player extends Entity {
                         gp.playSE(3);
                         gp.obj[i] = null;
                         hasKey--;
+                        gp.ui.showMessage("Door Unlocked.");
                     } else {
+                        gp.ui.showMessage("You need a key!");
 
                     }
                     break;
@@ -144,6 +165,12 @@ public class Player extends Entity {
                     gp.playSE(2);
                     speed += 1;
                     gp.obj[i] = null;
+                    gp.ui.showMessage("You speed up!");
+                    break;
+                case "Chest":
+                    gp.ui.gameFinished = true;
+                    gp.stopMusic();
+                    gp.playSE(4);
                     break;
             }
 
@@ -188,7 +215,26 @@ public class Player extends Entity {
                 }
                 break;
         }
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        int x = screenX;
+        int y = screenY;
+
+        if (screenX > worldX) {
+            x = worldX;
+        }
+        if (screenY > worldY) {
+            y = worldY;
+        }
+        int rightOffset = gp.screenWidth - screenX;
+        if (rightOffset > gp.worldWidth - worldX){
+            x = gp.screenWidth - (gp.worldWidth - worldX);
+        }
+        int bottomOffSet = gp.screenHeight - screenY;
+        if (bottomOffSet > gp.worldHeight - worldY) {
+            y = gp.screenHeight - (gp.worldHeight - worldY);
+        }
+
+        g2.drawImage(image, x, y, null);
+
         if (gp.developerMode) {
             g2.setColor(Color.red);
             g2.drawRect(screenX + solidArea.x, screenY + solidArea.y, solidArea.width, solidArea.height);

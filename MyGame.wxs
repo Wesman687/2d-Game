@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package>
+        <Product Id="*" Name="Treasure Hunting Game" Language="1033" Version="1.0.0.0" Manufacturer="Paul Miracle" UpgradeCode="837b2ae6-af05-45cc-813c-279e2855a3b6">
+            <PackageInstaller />
+            <Feature Id="MainFeature" Title="MyGame" Level="1">
+                <ComponentGroupRef Id="GameFiles" />
+            </Feature>
+        </Product>
+    </Package>
+
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="MyGame" />
+            </Directory>
+        </Directory>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="GameFiles">
+            <Component Id="GameJar" Guid="837b2ae6-af05-45cc-813c-279e2855a3b6">
+                <File Source="Game.jar" />
+            </Component>
+            <Component Id="CustomJRE" Guid="837b2ae6-af05-45cc-813c-279e2855a3b7">
+                <File Source="custom-jre/bin/java.exe" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
